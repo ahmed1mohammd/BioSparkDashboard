@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioSpark Admin Dashboard</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://i.ibb.co/HTxXpcTM/logo.png">
+</head>
+<body class="bg-light">
+
+    <!-- Login Page -->
+    <div id="login-page" class="d-none">
+        <div class="row min-vh-100 g-0">
+            <!-- Left Side: Branding/Image -->
+            <div class="col-lg-7 d-none d-lg-block">
+                <div class="h-100 w-100 position-relative bg-success bg-opacity-10 d-flex align-items-center justify-content-center overflow-hidden">
+                    <div class="text-center p-5 z-2">
+                        <img src="https://i.ibb.co/HTxXpcTM/logo.png" alt="BioSpark" class="mb-4" height="120">
+                        <h1 class="display-3 fw-bold text-success">BioSpark Admin</h1>
+                        <p class="fs-4 text-muted">Empowering Science Education in Schools</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Right Side: Login Form -->
+            <div class="col-lg-5 d-flex align-items-center justify-content-center p-4">
+                <div class="w-100" style="max-width: 400px;">
+                    <div class="text-center mb-5 d-lg-none">
+                        <img src="https://i.ibb.co/HTxXpcTM/logo.png" alt="BioSpark" height="80">
+                    </div>
+                    <div class="mb-5">
+                        <h2 class="fw-bold fs-1">Welcome Back</h2>
+                        <p class="text-muted">Enter your credentials to manage BioSpark</p>
+                    </div>
+                    <form id="login-form">
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Email Address</label>
+                            <input type="email" id="email" class="form-control form-control-lg border-2" placeholder="admin@biospark.com" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-medium">Password</label>
+                            <input type="password" id="password" class="form-control form-control-lg border-2" placeholder="••••••••" required>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 py-3 fw-bold fs-5 shadow-sm rounded-3">
+                            Sign In
+                        </button>
+                    </form>
+                    <div class="text-center mt-4">
+                        <p class="text-muted">Don't have an account? <a href="#" id="show-register" class="text-success fw-bold text-decoration-none">Create Admin Account</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Shell -->
+    <div id="dashboard-shell" class="d-none">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header p-4 d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <img src="https://i.ibb.co/HTxXpcTM/logo.png" alt="BioSpark Logo" height="40" class="me-2">
+                </div>
+                <button class="btn btn-sm d-md-none text-white" id="close-sidebar">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            
+            <nav class="sidebar-nav p-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item mb-2">
+                        <a href="dashboard" class="nav-link active rounded-pill d-flex align-items-center" data-link>
+                            <i class="bi bi-grid-fill me-3"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="products" class="nav-link rounded-pill d-flex align-items-center" data-link>
+                            <i class="bi bi-box-seam-fill me-3"></i>
+                            <span>Products</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="workshops" class="nav-link rounded-pill d-flex align-items-center" data-link>
+                            <i class="bi bi-mortarboard-fill me-3"></i>
+                            <span>Workshops</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="events" class="nav-link rounded-pill d-flex align-items-center" data-link>
+                            <i class="bi bi-calendar-event-fill me-3"></i>
+                            <span>Events</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="articles" class="nav-link rounded-pill d-flex align-items-center" data-link>
+                            <i class="bi bi-file-earmark-richtext-fill me-3"></i>
+                            <span>Articles</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="customers" class="nav-link rounded-pill d-flex align-items-center" data-link>
+                            <i class="bi bi-people-fill me-3"></i>
+                            <span>Partners</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="visitors" class="nav-link rounded-pill d-flex align-items-center" data-link>
+                            <i class="bi bi-person-plus-fill me-3"></i>
+                            <span>Visitors</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="reviews" class="nav-link rounded-pill d-flex align-items-center" data-link>
+                            <i class="bi bi-chat-left-quote-fill me-3"></i>
+                            <span>Customer Feedback</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="messages" class="nav-link rounded-pill d-flex align-items-center" data-link>
+                            <i class="bi bi-envelope-fill me-3"></i>
+                            <span>Contact Messages</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2" id="nav-manage-admins">
+                        <a href="users" class="nav-link rounded-pill d-flex align-items-center" data-link>
+                            <i class="bi bi-shield-lock-fill me-3"></i>
+                            <span>Manage Admins</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mt-4">
+                        <hr class="text-white opacity-25">
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link rounded-pill d-flex align-items-center text-danger" id="logout-btn">
+                            <i class="bi bi-box-arrow-right me-3"></i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Main Content Wrapper -->
+        <div class="main-wrapper" id="main-wrapper">
+            <!-- Navbar -->
+            <nav class="navbar navbar-expand-lg px-4 py-3 bg-white shadow-sm sticky-top">
+                <div class="container-fluid">
+                    <button class="btn me-3 d-md-none" id="toggle-sidebar">
+                        <i class="bi bi-list fs-4"></i>
+                    </button>
+                    
+                    <h5 class="mb-0 fw-bold d-none d-sm-block text-capitalize" id="page-title">Dashboard</h5>
+
+                    <div class="ms-auto d-flex align-items-center">
+                        <!-- Profile Dropdown -->
+                        <div class="dropdown">
+                            <button class="btn d-flex align-items-center p-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="me-2 d-none d-md-block fw-medium">Admin User</span>
+                                <img src="https://i.ibb.co/HTxXpcTM/logo.png" alt="Profile" class="rounded-circle border border-2 border-success" width="38" height="38" style="background: white; object-fit: contain; padding: 2px;">
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
+                                <li><a class="dropdown-item py-2" href="profile" data-link><i class="bi bi-person me-2"></i> Profile</a></li>
+                                <li><a class="dropdown-item py-2" href="#"><i class="bi bi-gear me-2"></i> Settings</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item py-2 text-danger" href="#" id="logout-dropdown"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Dynamic Content Area -->
+            <div id="content-area" class="p-4">
+                <div class="d-flex justify-content-center align-items-center" style="height: 50vh;">
+                    <div class="spinner-border text-success" role="status"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="liveToast" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="toast-message"></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration Modal -->
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg p-3 rounded-4">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Create Admin Account</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="register-form">
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Full Name</label>
+                            <input type="text" id="reg-name" class="form-control" placeholder="Admin Name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Email Address</label>
+                            <input type="email" id="reg-email" class="form-control" placeholder="admin@biospark.com" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-medium">Password</label>
+                            <input type="password" id="reg-password" class="form-control" placeholder="••••••••" required>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 py-3 fw-bold rounded-3">Register Admin</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Item Modals (Reusable) -->
+    <div class="modal fade" id="itemModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg p-3 rounded-4">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="itemModalLabel">Add New Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="itemForm">
+                        <input type="hidden" id="item-id">
+                        <div class="row g-3">
+                            <div class="col-md-7">
+                                <div class="mb-3" id="title-container">
+                                    <label class="form-label fw-medium">Title</label>
+                                    <input type="text" id="item-title" class="form-control" placeholder="Enter title" required>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6" id="date-container">
+                                        <label class="form-label fw-medium">Date</label>
+                                        <input type="datetime-local" id="item-date" class="form-control" required>
+                                    </div>
+                                    <div class="col-md-6 d-none" id="category-container">
+                                        <label class="form-label fw-medium">Category</label>
+                                        <select id="item-category" class="form-control">
+                                            <option value="3D Product">3D Product</option>
+                                            <option value="Edutainment">Edutainment</option>
+                                            <option value="Puzzles">Puzzles</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="mb-3" id="description-container">
+                                    <label class="form-label fw-medium d-flex justify-content-between">Content / Description</label>
+                                    <textarea id="item-desc" class="form-control" rows="12" placeholder="Enter full article content here..."></textarea>
+                                </div>
+                                <div class="mb-3 d-none" id="registration-container">
+                                    <label class="form-label fw-medium">Registration Link</label>
+                                    <input type="url" id="item-reg-link" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label fw-medium">Image URL</label>
+                                <input type="text" id="item-image-url" class="form-control mb-3">
+                                <div id="image-preview-container" class="d-none border rounded p-2 text-center">
+                                    <img id="image-preview" src="" class="img-fluid rounded">
+                                </div>
+                                <div id="upload-placeholder" class="text-center p-5 bg-light rounded"><i class="bi bi-image fs-1 opacity-25"></i></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" form="itemForm" class="btn btn-success" id="save-btn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content border-0 shadow p-3 text-center">
+                <div class="modal-body">
+                    <h5 class="fw-bold">Are you sure?</h5>
+                    <p class="text-muted">This action cannot be undone.</p>
+                </div>
+                <div class="d-flex gap-2 justify-content-center">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirm-delete">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message View Modal -->
+    <div class="modal fade" id="messageViewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg p-3 rounded-4">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">From: <span id="view-msg-name"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <label class="text-muted small d-block mb-1">Email Address</label>
+                        <div class="d-flex align-items-center bg-light p-2 rounded">
+                            <span id="view-msg-email" class="fw-medium"></span>
+                            <button class="btn btn-sm btn-light ms-auto copy-btn" id="copy-email-btn" title="Copy Email">
+                                <i class="bi bi-copy text-success"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-muted small d-block mb-1">Message Content</label>
+                        <div class="bg-light p-3 rounded position-relative">
+                            <p id="view-msg-content" class="mb-0 text-dark" style="white-space: pre-wrap;"></p>
+                            <button class="btn btn-sm btn-light position-absolute top-0 end-0 m-2 copy-btn" id="copy-msg-btn" title="Copy Message">
+                                <i class="bi bi-copy text-success"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-success fw-bold px-4" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- App Logic -->
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/router.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

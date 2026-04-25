@@ -1,0 +1,222 @@
+/* BioSpark Admin Styles */
+:root {
+    --primary-color: #10b981;
+    --primary-hover: #059669;
+    --sidebar-bg: #111827;
+    --sidebar-color: #9ca3af;
+    --sidebar-active: #ffffff;
+    --content-bg: #f9fafb;
+    --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --transition-speed: 0.3s;
+}
+
+/* Dark Mode Variables */
+[data-bs-theme="dark"] {
+    --content-bg: #0f172a;
+    --card-bg: #1e293b;
+    --sidebar-bg: #020617;
+    --text-color: #f1f5f9;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--content-bg);
+    color: #1f2937;
+    transition: background-color var(--transition-speed);
+}
+
+[data-bs-theme="dark"] body {
+    color: var(--text-color);
+}
+
+/* Sidebar Styling */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 260px;
+    background-color: var(--sidebar-bg);
+    z-index: 1040;
+    transition: transform var(--transition-speed);
+    overflow-y: auto;
+}
+
+.sidebar-nav .nav-link {
+    color: var(--sidebar-color);
+    padding: 0.8rem 1.2rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    margin-bottom: 0.25rem;
+}
+
+.sidebar-nav .nav-link:hover {
+    color: var(--sidebar-active);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-nav .nav-link.active {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+/* Main Wrapper */
+.main-wrapper {
+    margin-left: 260px;
+    min-height: 100vh;
+    transition: margin var(--transition-speed);
+}
+
+/* Layout Adjustments for Mobile */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-260px);
+    }
+    .main-wrapper {
+        margin-left: 0;
+    }
+    .sidebar.show {
+        transform: translateX(0);
+    }
+}
+
+/* Navbar */
+.navbar {
+    z-index: 1030;
+    backdrop-filter: blur(8px);
+    background-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+[data-bs-theme="dark"] .navbar {
+    background-color: rgba(30, 41, 59, 0.9) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Cards & Components */
+.card {
+    border-radius: 12px;
+    border: none;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+}
+
+.stats-card .icon-box {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+}
+
+/* Buttons */
+.btn-success {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-success:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+}
+
+/* Table Design */
+.table {
+    vertical-align: middle;
+}
+
+.table thead th {
+    background-color: #f8fafc;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.025em;
+    color: #64748b;
+}
+
+[data-bs-theme="dark"] .table thead th {
+    background-color: #1e293b;
+    color: #94a3b8;
+}
+
+.item-img {
+    width: 45px;
+    height: 45px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+/* Image Upload */
+.border-dashed {
+    border: 2px dashed #e2e8f0;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.border-dashed:hover {
+    border-color: var(--primary-color);
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/* Animations */
+.fade-in {
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Dark Mode Overrides */
+[data-bs-theme="dark"] .card {
+    background-color: var(--card-bg);
+}
+
+[data-bs-theme="dark"] .input-group-text, 
+[data-bs-theme="dark"] .form-control {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: #f1f5f9;
+}
+
+[data-bs-theme="dark"] .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+[data-bs-theme="dark"] .text-muted {
+    color: #94a3b8 !important;
+}
+
+/* Utility */
+.btn-icon {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    color: #64748b;
+}
+
+.btn-icon:hover {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--primary-color);
+}
+.text-nowrap .btn {
+    margin-bottom: 0 !important;
+}
+
+.table th, .table td {
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
