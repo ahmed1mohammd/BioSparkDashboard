@@ -2,7 +2,9 @@
  * BioSpark API - Real Backend Integration
  */
 const API = {
-    BASE_URL: 'https://bio-spark-t7a9.vercel.app/api',
+    BASE_URL: (window.location.port === '5000') 
+        ? '/api'
+        : 'http://localhost:5000/api',
 
     async request(endpoint, options = {}) {
         const user = Auth.getUser();
@@ -115,6 +117,69 @@ const API = {
 
     async deleteUser(id) {
         await this.request(`/auth/users/${id}`, {
+            method: 'DELETE'
+        });
+        return true;
+    },
+
+    async uploadImage(file) {
+        const formData = new FormData();
+        formData.append('image', file);
+
+        const user = Auth.getUser();
+        const headers = {};
+        if (user && user.token) {
+            headers['Authorization'] = `Bearer ${user.token}`;
+        }
+
+        const response = await fetch(`${this.BASE_URL}/upload`, {
+            method: 'POST',
+            headers,
+            body: formData
+        });
+
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(result.error || result.message || 'Upload failed');
+        }
+        return result.data?.url || result.url;
+    },
+
+    async getSchoolInquiries() {
+        const result = await this.request('/inquiries/school');
+        return result.data || [];
+    },
+
+    async updateSchoolInquiryStatus(id, status) {
+        const result = await this.request(`/inquiries/school/${id}`, {
+            method: 'PATCH',
+            body: JSON.stringify({ status })
+        });
+        return result.data || result;
+    },
+
+    async deleteSchoolInquiry(id) {
+        await this.request(`/inquiries/school/${id}`, {
+            method: 'DELETE'
+        });
+        return true;
+    },
+
+    async getContactSubmissions() {
+        const result = await this.request('/inquiries/contact');
+        return result.data || [];
+    },
+
+    async updateContactStatus(id, status) {
+        const result = await this.request(`/inquiries/contact/${id}`, {
+            method: 'PATCH',
+            body: JSON.stringify({ status })
+        });
+        return result.data || result;
+    },
+
+    async deleteContactSubmission(id) {
+        await this.request(`/inquiries/contact/${id}`, {
             method: 'DELETE'
         });
         return true;

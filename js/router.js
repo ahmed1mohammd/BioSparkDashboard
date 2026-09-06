@@ -6,11 +6,17 @@ const Router = {
         dashboard: { title: 'Dashboard', render: async () => UI.renderDashboard('content-area', await API.getStats()) },
         profile: { title: 'My Profile', render: async () => UI.renderProfile('content-area', await API.getProfile()) },
         users: { title: 'Manage Administrators', render: () => Router.renderAdminsPage() },
+        programs: { title: 'School Programs', render: () => Router.renderDataPage('programs') },
+        'school-inquiries': { title: 'School Booking Requests', render: () => Router.renderSchoolInquiriesPage() },
         products: { title: 'Products', render: () => Router.renderDataPage('products') },
         workshops: { title: 'Workshops', render: () => Router.renderDataPage('workshops') },
+        camps: { title: 'Camps', render: () => Router.renderDataPage('camps') },
+        carousels: { title: 'Hero Carousels', render: () => Router.renderDataPage('carousels') },
+        'board-members': { title: 'Board Members', render: () => Router.renderDataPage('board-members') },
         events: { title: 'Events', render: () => Router.renderDataPage('events') },
         articles: { title: 'Articles', render: () => Router.renderDataPage('articles') },
-        customers: { title: 'Our Partners', render: () => Router.renderDataPage('customers') },
+        gallery: { title: 'Photo Gallery / Moments', render: () => Router.renderDataPage('gallery') },
+        customers: { title: 'Our Customers / Partners', render: () => Router.renderDataPage('customers') },
         reviews: { title: 'Customer Feedback', render: () => Router.renderDataPage('reviews') },
         visitors: { title: 'Visitors Email List', render: () => Router.renderVisitorsPage() },
         messages: { title: 'Contact Messages', render: () => Router.renderMessagesPage() }
@@ -28,11 +34,19 @@ const Router = {
             }
         });
 
-        this.navigateTo(this.currentRoute);
+        window.addEventListener('hashchange', () => {
+            const route = window.location.hash.replace('#', '');
+            if (route && route !== this.currentRoute && this.routes[route]) {
+                this.navigateTo(route, false);
+            }
+        });
+
+        const initialRoute = window.location.hash.replace('#', '');
+        this.navigateTo(initialRoute || this.currentRoute);
     },
 
-    async navigateTo(route) {
-        if (!this.routes[route]) route = 'dashboard';
+    async navigateTo(route, updateHash = true) {
+        if (!route || !this.routes[route]) route = 'dashboard';
         
         // Security Check for Manage Admins
         if (route === 'users' && !Auth.isSuperAdmin()) {
@@ -42,11 +56,16 @@ const Router = {
         }
 
         this.currentRoute = route;
+        if (updateHash && window.location.hash !== `#${route}`) {
+            window.location.hash = `#${route}`;
+        }
+
         document.getElementById('page-title').textContent = this.routes[route].title;
         
         document.querySelectorAll('.sidebar-nav .nav-link').forEach(link => {
             link.classList.remove('active');
-            if (link.getAttribute('href') === route) {
+            const linkRoute = link.getAttribute('href').replace('#', '');
+            if (linkRoute === route) {
                 link.classList.add('active');
             }
         });
@@ -211,19 +230,19 @@ const Router = {
 
         const refreshMessages = async () => {
             try {
-                const messages = await API.getData('messages');
+                const messages = await API.getContactSubmissions();
                 UI.renderMessagesTable('messages-table-container', messages, 
                     async (id, newStatus) => {
                         try {
-                            await API.saveItem('messages', { _id: id, status: newStatus });
-                            UI.showToast(`Message marked as ${newStatus === 'replied' ? 'replied' : 'pending'}`);
+                            await API.updateContactStatus(id, newStatus);
+                            UI.showToast(`Status updated to ${newStatus}`);
                             refreshMessages();
                         } catch (err) { UI.showToast(err.message, 'danger'); }
                     },
                     async (id) => {
                         if (confirm('Are you sure you want to delete this message?')) {
                             try {
-                                await API.deleteItem('messages', id);
+                                await API.deleteContactSubmission(id);
                                 UI.showToast('Message deleted', 'warning');
                                 refreshMessages();
                             } catch (err) { UI.showToast(err.message, 'danger'); }
@@ -231,10 +250,55 @@ const Router = {
                     }
                 );
             } catch (err) {
-                UI.showToast('Failed to load messages', 'danger');
+                UI.showToast('Failed to load messages: ' + err.message, 'danger');
             }
         };
 
         await refreshMessages();
+    },
+
+    async renderSchoolInquiriesPage() {
+        const contentArea = document.getElementById('content-area');
+        contentArea.innerHTML = `
+            <div class="fade-in">
+                <div class="mb-4">
+                    <h4 class="fw-bold mb-1">School Booking Requests (طلبات حجز المدارس)</h4>
+                    <p class="text-muted small">Inquiries and requests submitted by schools through the "For Schools" page.</p>
+                </div>
+                <div class="card border-0 shadow-sm overflow-hidden">
+                    <div id="school-inquiries-table-container">
+                        <div class="p-5 text-center"><div class="spinner-border text-success"></div></div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const refreshInquiries = async () => {
+            try {
+                const inquiries = await API.getSchoolInquiries();
+                UI.renderSchoolInquiriesTable('school-inquiries-table-container', inquiries, 
+                    async (id, newStatus) => {
+                        try {
+                            await API.updateSchoolInquiryStatus(id, newStatus);
+                            UI.showToast(`Status updated to ${newStatus}`);
+                            refreshInquiries();
+                        } catch (err) { UI.showToast(err.message, 'danger'); }
+                    },
+                    async (id) => {
+                        if (confirm('Are you sure you want to delete this school inquiry?')) {
+                            try {
+                                await API.deleteSchoolInquiry(id);
+                                UI.showToast('School inquiry deleted', 'warning');
+                                refreshInquiries();
+                            } catch (err) { UI.showToast(err.message, 'danger'); }
+                        }
+                    }
+                );
+            } catch (err) {
+                UI.showToast('Failed to load school inquiries: ' + err.message, 'danger');
+            }
+        };
+
+        await refreshInquiries();
     }
 };

@@ -160,6 +160,61 @@ const App = {
                 }
             };
         }
+
+        // Image File Cloudinary Upload logic
+        const fileInput = document.getElementById('item-image-file');
+        const uploadStatus = document.getElementById('upload-status');
+        if (fileInput) {
+            fileInput.onchange = async () => {
+                const file = fileInput.files[0];
+                if (!file) return;
+
+                try {
+                    if (uploadStatus) {
+                        uploadStatus.classList.remove('d-none', 'text-danger', 'text-success');
+                        uploadStatus.classList.add('text-primary');
+                        uploadStatus.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Uploading to Cloudinary...';
+                    }
+
+                    const uploadedUrl = await API.uploadImage(file);
+                    
+                    if (urlInput) {
+                        urlInput.value = uploadedUrl;
+                        urlInput.dispatchEvent(new Event('input'));
+                    }
+
+                    if (uploadStatus) {
+                        uploadStatus.classList.remove('text-primary');
+                        uploadStatus.classList.add('text-success');
+                        uploadStatus.innerHTML = '<i class="bi bi-check-circle me-1"></i>Uploaded to Cloudinary!';
+                    }
+                    UI.showToast('Image uploaded successfully to Cloudinary', 'success');
+                } catch (err) {
+                    console.error('File Upload Error:', err);
+                    if (uploadStatus) {
+                        uploadStatus.classList.remove('text-primary');
+                        uploadStatus.classList.add('text-danger');
+                        uploadStatus.textContent = 'Upload failed: ' + err.message;
+                    }
+                    UI.showToast('Upload failed: ' + err.message, 'danger');
+                }
+            };
+        }
+
+        // Category selection change logic for custom category
+        const catSelect = document.getElementById('item-category');
+        const customCatInput = document.getElementById('item-custom-category');
+        if (catSelect && customCatInput) {
+            catSelect.onchange = () => {
+                if (catSelect.value === '__custom__') {
+                    customCatInput.classList.remove('d-none');
+                    customCatInput.focus();
+                } else {
+                    customCatInput.classList.add('d-none');
+                    customCatInput.value = '';
+                }
+            };
+        }
     },
 
     // --- CRUD Actions ---
@@ -173,6 +228,24 @@ const App = {
         document.getElementById('itemForm').reset();
         document.getElementById('item-id').value = '';
         
+        const dynamicFields = ['item-role', 'item-agegroup', 'item-duration', 'item-price', 'item-saleprice', 'item-location', 'item-linkedin', 'item-facebook', 'item-tiktok', 'item-reg-link', 'item-date', 'item-size'];
+        dynamicFields.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+
+        const fileInput = document.getElementById('item-image-file');
+        const uploadStatus = document.getElementById('upload-status');
+        if (fileInput) fileInput.value = '';
+        if (uploadStatus) { uploadStatus.classList.add('d-none'); uploadStatus.innerHTML = ''; }
+        const urlInput = document.getElementById('item-image-url');
+        if (urlInput) urlInput.dispatchEvent(new Event('input'));
+        
+        const catSelect = document.getElementById('item-category');
+        const customCatInput = document.getElementById('item-custom-category');
+        if (catSelect) catSelect.selectedIndex = 0;
+        if (customCatInput) { customCatInput.classList.add('d-none'); customCatInput.value = ''; }
+
         this.toggleModalFields(collection);
 
         const form = document.getElementById('itemForm');
@@ -202,11 +275,64 @@ const App = {
             document.getElementById('itemModalLabel').textContent = `Edit ${collection.slice(0, -1)}`;
             
             document.getElementById('item-id').value = item._id || item.id;
-            document.getElementById('item-title').value = item.title || '';
-            document.getElementById('item-desc').value = item.description || item.desc || '';
+            document.getElementById('item-title').value = item.title || item.name || '';
+            document.getElementById('item-desc').value = item.description || item.bio || item.shortDescription || item.desc || '';
             document.getElementById('item-image-url').value = item.imageUrl || item.image || '';
+
+            const setField = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.value = val || '';
+            };
+
+            setField('item-role', item.role);
+            setField('item-agegroup', item.ageGroup || item.ageRange || item.targetGrades);
+            setField('item-duration', item.duration);
+            setField('item-price', item.price);
+            setField('item-saleprice', item.salePrice);
+            setField('item-location', item.location);
+            setField('item-reg-link', item.registrationLink);
+            setField('item-date', item.date || item.dates);
+            setField('item-size', item.size || 'medium');
+
+            setField('item-page', item.page || 'home');
+            setField('item-eyebrow', item.eyebrow || '');
+            setField('item-primary-btn-text', item.primaryBtnText || '');
+            setField('item-primary-btn-link', item.primaryBtnLink || '');
+            setField('item-secondary-btn-text', item.secondaryBtnText || '');
+            setField('item-secondary-btn-link', item.secondaryBtnLink || '');
+
+            if (item.socialLinks) {
+                setField('item-linkedin', item.socialLinks.linkedin);
+                setField('item-facebook', item.socialLinks.facebook);
+                setField('item-tiktok', item.socialLinks.tiktok);
+            } else {
+                setField('item-linkedin', '');
+                setField('item-facebook', '');
+                setField('item-tiktok', '');
+            }
             
-            if (item.category) document.getElementById('item-category').value = item.category;
+            const catSelect = document.getElementById('item-category');
+            const customCatInput = document.getElementById('item-custom-category');
+            if (item.category && catSelect) {
+                let exists = Array.from(catSelect.options).some(opt => opt.value === item.category);
+                if (!exists) {
+                    const customOpt = document.createElement('option');
+                    customOpt.value = item.category;
+                    customOpt.textContent = item.category;
+                    const customOptionRef = catSelect.querySelector('option[value="__custom__"]');
+                    if (customOptionRef) catSelect.insertBefore(customOpt, customOptionRef);
+                    else catSelect.appendChild(customOpt);
+                }
+                catSelect.value = item.category;
+                if (customCatInput) { customCatInput.classList.add('d-none'); customCatInput.value = ''; }
+            }
+
+            const fileInput = document.getElementById('item-image-file');
+            const uploadStatus = document.getElementById('upload-status');
+            if (fileInput) fileInput.value = '';
+            if (uploadStatus) { uploadStatus.classList.add('d-none'); uploadStatus.innerHTML = ''; }
+            const urlInputEl = document.getElementById('item-image-url');
+            if (urlInputEl) urlInputEl.dispatchEvent(new Event('input'));
 
             this.toggleModalFields(collection);
 
@@ -230,42 +356,123 @@ const App = {
     },
 
     toggleModalFields(collection) {
+        const titleLabel = document.getElementById('title-label');
+        const descLabel = document.getElementById('desc-label');
+
         const regContainer = document.getElementById('registration-container');
         const catContainer = document.getElementById('category-container');
         const titleContainer = document.getElementById('title-container');
         const descContainer = document.getElementById('description-container');
         const dateContainer = document.getElementById('date-container');
+        const roleContainer = document.getElementById('role-container');
+        const agegroupContainer = document.getElementById('agegroup-container');
+        const durationContainer = document.getElementById('duration-container');
+        const priceContainer = document.getElementById('price-container');
+        const salepriceContainer = document.getElementById('saleprice-container');
+        const locationContainer = document.getElementById('location-container');
+        const socialsContainer = document.getElementById('socials-container');
+        const sizeContainer = document.getElementById('size-container');
+        const carouselContainer = document.getElementById('carousel-fields-container');
 
-        if (collection === 'customers' || collection === 'reviews') {
-            if(regContainer) regContainer.classList.add('d-none');
-            if(catContainer) catContainer.classList.add('d-none');
-            if(titleContainer) titleContainer.classList.add('d-none');
-            if(descContainer) descContainer.classList.add('d-none');
-            if(dateContainer) dateContainer.classList.add('d-none');
-            
-            // Remove required attribute for hidden fields to allow empty submission
-            document.getElementById('item-title').required = false;
-            document.getElementById('item-date').required = false;
-        } else {
-            if(regContainer) regContainer.classList.toggle('d-none', collection !== 'workshops' && collection !== 'events');
-            if(catContainer) catContainer.classList.toggle('d-none', collection !== 'products');
-            if(titleContainer) titleContainer.classList.remove('d-none');
-            if(descContainer) descContainer.classList.remove('d-none');
-            if(dateContainer) dateContainer.classList.remove('d-none');
-            
-            document.getElementById('item-title').required = true;
-            document.getElementById('item-date').required = true;
-        }
+        if (titleLabel) titleLabel.textContent = collection === 'board-members' ? 'Member Name' : (collection === 'carousels' ? 'Headline / Slide Title' : 'Title');
+        if (descLabel) descLabel.textContent = collection === 'board-members' ? 'Biography / Details' : (collection === 'carousels' ? 'Slide Subtitle / Description' : 'Description');
+
+        if (carouselContainer) carouselContainer.classList.toggle('d-none', collection !== 'carousels');
+        if (roleContainer) roleContainer.classList.toggle('d-none', collection !== 'board-members');
+        if (socialsContainer) socialsContainer.classList.toggle('d-none', collection !== 'board-members');
+
+        if (agegroupContainer) agegroupContainer.classList.toggle('d-none', !['workshops', 'camps', 'programs'].includes(collection));
+        if (durationContainer) durationContainer.classList.toggle('d-none', !['workshops', 'camps', 'programs'].includes(collection));
+
+        if (priceContainer) priceContainer.classList.toggle('d-none', !['products', 'workshops', 'camps'].includes(collection));
+        if (salepriceContainer) salepriceContainer.classList.toggle('d-none', !['products', 'workshops', 'camps'].includes(collection));
+
+        if (locationContainer) locationContainer.classList.toggle('d-none', !['workshops', 'camps'].includes(collection));
+
+        if (dateContainer) dateContainer.classList.toggle('d-none', !['events', 'camps', 'news'].includes(collection));
+
+        if (catContainer) catContainer.classList.toggle('d-none', ['customers', 'reviews', 'board-members', 'carousels'].includes(collection));
+        if (sizeContainer) sizeContainer.classList.toggle('d-none', collection !== 'gallery');
+
+        if (regContainer) regContainer.classList.toggle('d-none', !['workshops', 'events', 'camps'].includes(collection));
+
+        if (titleContainer) titleContainer.classList.remove('d-none');
+        if (descContainer) descContainer.classList.remove('d-none');
+
+        const titleInput = document.getElementById('item-title');
+        if (titleInput) titleInput.required = !['customers', 'reviews'].includes(collection);
     },
 
     getFormData(collection) {
+        const catSelect = document.getElementById('item-category');
+        const customCatInput = document.getElementById('item-custom-category');
+        let categoryVal = catSelect ? catSelect.value : '';
+        if (categoryVal === '__custom__' && customCatInput && customCatInput.value.trim()) {
+            categoryVal = customCatInput.value.trim();
+        }
+
+        const getVal = (id) => {
+            const el = document.getElementById(id);
+            return el ? el.value : '';
+        };
+
+        const titleVal = getVal('item-title');
+        const descVal = getVal('item-desc');
+        const imageVal = getVal('item-image-url');
+        const roleVal = getVal('item-role');
+        const agegroupVal = getVal('item-agegroup');
+        const durationVal = getVal('item-duration');
+        const priceVal = parseFloat(getVal('item-price')) || 0;
+        const salepriceVal = parseFloat(getVal('item-saleprice')) || 0;
+        const locationVal = getVal('item-location');
+        const regLinkVal = getVal('item-reg-link');
+        const dateVal = getVal('item-date');
+        const sizeVal = getVal('item-size') || 'medium';
+
+        const pageVal = getVal('item-page') || 'home';
+        const eyebrowVal = getVal('item-eyebrow');
+        const primaryBtnTextVal = getVal('item-primary-btn-text');
+        const primaryBtnLinkVal = getVal('item-primary-btn-link');
+        const secondaryBtnTextVal = getVal('item-secondary-btn-text');
+        const secondaryBtnLinkVal = getVal('item-secondary-btn-link');
+
+        const linkedinVal = getVal('item-linkedin');
+        const facebookVal = getVal('item-facebook');
+        const tiktokVal = getVal('item-tiktok');
+
         return {
-            title: document.getElementById('item-title').value,
-            description: document.getElementById('item-desc').value,
-            imageUrl: document.getElementById('item-image-url').value,
-            date: document.getElementById('item-date').value,
-            category: document.getElementById('item-category').value,
-            registrationLink: document.getElementById('item-reg-link').value
+            title: titleVal,
+            headline: titleVal,
+            name: titleVal,
+            role: roleVal || descVal,
+            description: descVal,
+            shortDescription: descVal,
+            bio: descVal,
+            imageUrl: imageVal,
+            image: imageVal,
+            category: categoryVal,
+            size: sizeVal,
+            ageGroup: agegroupVal,
+            ageRange: agegroupVal,
+            targetGrades: agegroupVal,
+            duration: durationVal,
+            price: priceVal,
+            salePrice: salepriceVal,
+            location: locationVal,
+            registrationLink: regLinkVal,
+            date: dateVal,
+            dates: dateVal,
+            page: pageVal,
+            eyebrow: eyebrowVal,
+            primaryBtnText: primaryBtnTextVal,
+            primaryBtnLink: primaryBtnLinkVal,
+            secondaryBtnText: secondaryBtnTextVal,
+            secondaryBtnLink: secondaryBtnLinkVal,
+            socialLinks: {
+                linkedin: linkedinVal,
+                facebook: facebookVal,
+                tiktok: tiktokVal
+            }
         };
     },
 

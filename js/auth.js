@@ -4,7 +4,8 @@
 const Auth = {
     async login(email, password) {
         try {
-            const baseUrl = typeof API !== 'undefined' ? API.BASE_URL : 'https://bio-spark-t7a9.vercel.app/api';
+            const defaultUrl = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') ? 'http://localhost:5000/api' : 'https://bio-spark-t7a9.vercel.app/api';
+            const baseUrl = typeof API !== 'undefined' ? API.BASE_URL : defaultUrl;
             const response = await fetch(`${baseUrl}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -52,7 +53,8 @@ const Auth = {
 
     async register(name, email, password) {
         try {
-            const baseUrl = typeof API !== 'undefined' ? API.BASE_URL : 'https://bio-spark-t7a9.vercel.app/api';
+            const defaultUrl = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') ? 'http://localhost:5000/api' : 'https://bio-spark-t7a9.vercel.app/api';
+            const baseUrl = typeof API !== 'undefined' ? API.BASE_URL : defaultUrl;
             const response = await fetch(`${baseUrl}/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

@@ -53,17 +53,33 @@ const UI = {
 
         items.forEach(item => {
             const img = item.imageUrl || item.image || 'https://via.placeholder.com/150';
-            const displayDate = item.date ? new Date(item.date).toLocaleDateString() : 'N/A';
+            const displayDate = item.date ? new Date(item.date).toLocaleDateString() : (item.updatedAt ? new Date(item.updatedAt).toLocaleDateString() : 'N/A');
             const id = item._id || item.id;
+
+            let titleDisplay = item.title || item.name || item.headline || 'Item';
+            let subtitleDisplay = item.role || item.shortDescription || item.description || item.desc || item.eyebrow || '';
+
+            if (collection === 'carousels') {
+                const pageColors = {
+                    home: 'bg-primary',
+                    'for-schools': 'bg-success',
+                    about: 'bg-info text-dark',
+                    camps: 'bg-warning text-dark',
+                    workshops: 'bg-purple'
+                };
+                const colorClass = pageColors[item.page] || 'bg-secondary';
+                titleDisplay = `<span class="badge ${colorClass} text-uppercase me-2">${item.page || 'home'}</span> ${item.headline || titleDisplay}`;
+                subtitleDisplay = `${item.eyebrow ? '[' + item.eyebrow + '] ' : ''}${item.description || ''}`;
+            }
 
             html += `
                 <tr>
                     <td class="ps-4">
-                        <img src="${img}" class="item-img" alt="${item.title}">
+                        <img src="${img}" class="item-img" alt="Item">
                     </td>
                     <td>
-                        <div class="fw-bold text-dark">${item.title}</div>
-                        <small class="text-muted d-block text-truncate" style="max-width: 250px;">${item.description || item.desc || ''}</small>
+                        <div class="fw-bold text-dark">${titleDisplay}</div>
+                        <small class="text-muted d-block text-truncate" style="max-width: 320px;">${subtitleDisplay}</small>
                     </td>
                     <td class="text-muted">${displayDate}</td>
                     <td class="text-end pe-4 text-nowrap">
@@ -132,19 +148,19 @@ const UI = {
                         </div>
                         <div class="card-body px-4">
                             <div class="list-group list-group-flush">
-                                <a href="products" class="list-group-item list-group-item-action border-0 px-0 py-3" data-link>
+                                <a href="#products" class="list-group-item list-group-item-action border-0 px-0 py-3" data-link>
                                     <div class="d-flex align-items-center">
                                         <div class="rounded-circle bg-light p-2 me-3"><i class="bi bi-plus-lg"></i></div>
                                         <span>Add New Product</span>
                                     </div>
                                 </a>
-                                <a href="workshops" class="list-group-item list-group-item-action border-0 px-0 py-3" data-link>
+                                <a href="#workshops" class="list-group-item list-group-item-action border-0 px-0 py-3" data-link>
                                     <div class="d-flex align-items-center">
                                         <div class="rounded-circle bg-light p-2 me-3"><i class="bi bi-mortarboard"></i></div>
                                         <span>Create Workshop</span>
                                     </div>
                                 </a>
-                                <a href="articles" class="list-group-item list-group-item-action border-0 px-0 py-3" data-link>
+                                <a href="#articles" class="list-group-item list-group-item-action border-0 px-0 py-3" data-link>
                                     <div class="d-flex align-items-center">
                                         <div class="rounded-circle bg-light p-2 me-3"><i class="bi bi-journal-text"></i></div>
                                         <span>Write Article</span>
@@ -439,21 +455,187 @@ const UI = {
                 document.getElementById('copy-email-btn').onclick = () => this.copyToClipboard(b.dataset.email);
                 document.getElementById('copy-msg-btn').onclick = () => this.copyToClipboard(b.dataset.content);
                 
-                const modal = new bootstrap.Modal(document.getElementById('messageViewModal'));
+                const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+                const modalBody = document.querySelector('#deleteModal .modal-body');
+                const confirmBtn = document.getElementById('confirm-delete');
+                
+                modalBody.innerHTML = `
+                    <div class="text-start">
+                        <h5 class="fw-bold mb-1">${b.dataset.name}</h5>
+                        <p class="text-muted small mb-3">${b.dataset.email}</p>
+                        <div class="p-3 bg-light rounded border text-dark mb-2" style="white-space: pre-wrap; max-height: 300px; overflow-y: auto;">
+                            ${b.dataset.content}
+                        </div>
+                    </div>
+                `;
+                confirmBtn.style.display = 'none';
                 modal.show();
+
+                document.getElementById('deleteModal').addEventListener('hidden.bs.modal', function handler() {
+                    confirmBtn.style.display = 'inline-block';
+                    document.getElementById('deleteModal').removeEventListener('hidden.bs.modal', handler);
+                });
             };
         });
 
-        // Status Toggle
+        // Toggle Status
         container.querySelectorAll('.reply-toggle-btn').forEach(b => {
             b.onclick = () => {
-                const newStatus = b.dataset.status === 'replied' ? 'read' : 'replied';
-                onStatusChange(b.dataset.id, newStatus);
+                const currentStatus = b.dataset.status;
+                const nextStatus = currentStatus === 'replied' ? 'pending' : 'replied';
+                onStatusChange(b.dataset.id, nextStatus);
             };
         });
 
         // Delete
         container.querySelectorAll('.delete-msg-btn').forEach(b => {
+            b.onclick = () => onDelete(b.dataset.id);
+        });
+    },
+
+    renderSchoolInquiriesTable(containerId, inquiries, onStatusChange, onDelete) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        if (!inquiries || inquiries.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-5">
+                    <i class="bi bi-clipboard-x text-muted display-1"></i>
+                    <p class="text-muted mt-2">No school booking requests found.</p>
+                </div>
+            `;
+            return;
+        }
+
+        let html = `
+            <div class="table-responsive">
+                <table class="table align-middle table-hover border-top mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">School & Contact</th>
+                            <th>Program & Grade</th>
+                            <th>Students & Date</th>
+                            <th>Status</th>
+                            <th>Submitted</th>
+                            <th class="text-end pe-4" style="width: 1%;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        inquiries.forEach(inq => {
+            const date = new Date(inq.createdAt || Date.now()).toLocaleDateString();
+            const id = inq._id || inq.id;
+            
+            const statusBadges = {
+                'New': 'bg-primary text-white',
+                'Contacted': 'bg-info text-dark',
+                'In Progress': 'bg-warning text-dark',
+                'Closed': 'bg-success text-white'
+            };
+
+            const badgeClass = statusBadges[inq.status] || 'bg-secondary text-white';
+
+            html += `
+                <tr>
+                    <td class="ps-4 py-3">
+                        <div class="fw-bold text-dark">${inq.schoolName}</div>
+                        <small class="text-muted d-block">${inq.contactPerson} (${inq.phone})</small>
+                        <small class="text-primary d-block">${inq.email}</small>
+                    </td>
+                    <td>
+                        <div class="fw-medium text-dark">${inq.interestedProgram || 'N/A'}</div>
+                        <small class="text-muted d-block">${inq.studentGrade || ''}</small>
+                    </td>
+                    <td>
+                        <span class="badge bg-light text-dark border me-1">${inq.studentCount || 'N/A'} Students</span>
+                        <small class="text-muted d-block mt-1">${inq.preferredDate ? '📅 ' + inq.preferredDate : ''}</small>
+                    </td>
+                    <td>
+                        <select class="form-select form-select-sm status-select" data-id="${id}" style="width: 130px;">
+                            <option value="New" ${inq.status === 'New' ? 'selected' : ''}>🔵 New</option>
+                            <option value="Contacted" ${inq.status === 'Contacted' ? 'selected' : ''}>ℹ️ Contacted</option>
+                            <option value="In Progress" ${inq.status === 'In Progress' ? 'selected' : ''}>⏳ In Progress</option>
+                            <option value="Closed" ${inq.status === 'Closed' ? 'selected' : ''}>✅ Closed</option>
+                        </select>
+                    </td>
+                    <td class="text-muted" style="font-size: 0.85rem;">${date}</td>
+                    <td class="text-end pe-4 text-nowrap">
+                        <button class="btn btn-sm btn-outline-primary me-1 view-inq-btn" 
+                                data-id="${id}" 
+                                data-school="${inq.schoolName}" 
+                                data-person="${inq.contactPerson}" 
+                                data-email="${inq.email}" 
+                                data-phone="${inq.phone}" 
+                                data-program="${inq.interestedProgram}"
+                                data-grade="${inq.studentGrade}"
+                                data-count="${inq.studentCount}"
+                                data-date="${inq.preferredDate}"
+                                data-message="${(inq.message || '').replace(/"/g, '&quot;')}"
+                                title="View Details">
+                            <i class="bi bi-eye-fill"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger delete-inq-btn" data-id="${id}" title="Delete Inquiry">
+                            <i class="bi bi-trash3"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        html += `</tbody></table></div>`;
+        container.innerHTML = html;
+
+        // Status Change Handler
+        container.querySelectorAll('.status-select').forEach(sel => {
+            sel.onchange = () => {
+                onStatusChange(sel.dataset.id, sel.value);
+            };
+        });
+
+        // View Inquiry Details Modal
+        container.querySelectorAll('.view-inq-btn').forEach(b => {
+            b.onclick = () => {
+                const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+                const modalBody = document.querySelector('#deleteModal .modal-body');
+                const confirmBtn = document.getElementById('confirm-delete');
+                
+                modalBody.innerHTML = `
+                    <div class="text-start">
+                        <h4 class="fw-bold mb-1 text-success">${b.dataset.school}</h4>
+                        <p class="text-muted mb-3"><strong>Contact:</strong> ${b.dataset.person} | ${b.dataset.phone} | ${b.dataset.email}</p>
+                        
+                        <div class="row g-2 mb-3">
+                            <div class="col-6"><div class="p-2 bg-light rounded border"><strong>Program:</strong> ${b.dataset.program}</div></div>
+                            <div class="col-6"><div class="p-2 bg-light rounded border"><strong>Grade:</strong> ${b.dataset.grade}</div></div>
+                            <div class="col-6"><div class="p-2 bg-light rounded border"><strong>Students:</strong> ${b.dataset.count}</div></div>
+                            <div class="col-6"><div class="p-2 bg-light rounded border"><strong>Preferred Date:</strong> ${b.dataset.date || 'Not specified'}</div></div>
+                        </div>
+
+                        <label class="fw-bold mb-1">Educational Goals & Message:</label>
+                        <div class="p-3 bg-light rounded border text-dark mb-2" style="white-space: pre-wrap; max-height: 250px; overflow-y: auto;">
+                            ${b.dataset.message || 'No additional details provided.'}
+                        </div>
+                        
+                        <div class="mt-3">
+                            <a href="https://wa.me/${b.dataset.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hi ' + b.dataset.person + ', regarding your school inquiry for ' + b.dataset.school + ' at BioSpark...')}" target="_blank" class="btn btn-success btn-sm w-100 fw-bold">
+                                <i class="bi bi-whatsapp me-1"></i> Contact via WhatsApp
+                            </a>
+                        </div>
+                    </div>
+                `;
+                confirmBtn.style.display = 'none';
+                modal.show();
+
+                document.getElementById('deleteModal').addEventListener('hidden.bs.modal', function handler() {
+                    confirmBtn.style.display = 'inline-block';
+                    document.getElementById('deleteModal').removeEventListener('hidden.bs.modal', handler);
+                });
+            };
+        });
+
+        // Delete Handler
+        container.querySelectorAll('.delete-inq-btn').forEach(b => {
             b.onclick = () => onDelete(b.dataset.id);
         });
     }
